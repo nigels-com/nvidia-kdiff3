@@ -312,9 +312,9 @@ void FileAccess::setFile( const QString& name, bool bWantToWrite )
          }
 #endif
 
-         if ( !bExistsLocal && m_url.isLocalFile() && name.left(5).toLower()=="file:" )
+         if ( !bExistsLocal && url.isLocalFile() && name.left(5).toLower()=="file:" )
          {
-            localName = m_url.path(); // I want the path without preceding "file:"
+            localName = url.path(); // I want the path without preceding "file:"
          }
 
          QFileInfo fi( localName );
