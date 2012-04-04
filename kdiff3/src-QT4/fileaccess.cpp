@@ -300,7 +300,19 @@ void FileAccess::setFile( const QString& name, bool bWantToWrite )
       if ( url.isLocalFile() || url.isRelative() || !url.isValid() || bExistsLocal ) // assuming that invalid means relative
       {
          QString localName = name;
-         if ( !bExistsLocal && url.isLocalFile() && name.left(5).toLower()=="file:" )
+
+         // git on Cygwin will put files in /tmp
+         // A workaround for the a native kdiff3 binary to find them...
+      
+#if defined(Q_WS_WIN)
+         if (localName.startsWith("/tmp/"))
+         {
+            QString cygwinBin = getenv("CYGWIN_BIN");
+            localName = QString("%1\\..%2").arg(cygwinBin).arg(name);
+         }
+#endif
+
+         if ( !bExistsLocal && m_url.isLocalFile() && name.left(5).toLower()=="file:" )
          {
             localName = url.path(); // I want the path without preceding "file:"
          }
