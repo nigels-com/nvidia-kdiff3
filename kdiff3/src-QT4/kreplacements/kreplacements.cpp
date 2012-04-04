@@ -1144,6 +1144,7 @@ KApplication::KApplication()
                continue;
 #else
             std::cerr << s.toLatin1().constData() << std::endl;
+            fprintf(stderr, "%s\n", s.toLatin1().constData());
 #endif
 
             ::exit(-1);

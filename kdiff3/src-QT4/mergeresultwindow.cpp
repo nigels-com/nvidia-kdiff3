@@ -50,7 +50,6 @@
 
 #include <klocale.h>
 #include <kmessagebox.h>
-#include <iostream>
 
 int g_bAutoSolve = true;
 
