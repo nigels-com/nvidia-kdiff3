@@ -242,11 +242,13 @@ int main(int argc, char *argv[])
    }
 #endif
 
+#ifndef QT_NO_SESSIONMANAGER
   if (app.isSessionRestored())
   {
      RESTORE(KDiff3Shell);
   }
   else
+#endif
   {
      KDiff3Shell* p = new KDiff3Shell();
      p->show();
