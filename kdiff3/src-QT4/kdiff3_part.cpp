@@ -47,7 +47,7 @@ KDiff3Part::KDiff3Part( QWidget *parentWidget, const char *widgetName,
     m_widget = new KDiff3App( parentWidget, widgetName, this );
     
     // This hack is necessary to avoid a crash when the program terminates.
-    m_bIsShell = dynamic_cast<KParts::MainWindow*>(parentWidget)!=0;
+    m_bIsShell = qobject_cast<KParts::MainWindow*>(parentWidget)!=0;
 
     // notify the part that this is our internal widget
     setWidget(m_widget);
