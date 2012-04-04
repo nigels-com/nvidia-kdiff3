@@ -314,6 +314,8 @@ KMainWindow::KMainWindow( QWidget* parent )
       
    memberList = new QList<KMainWindow*>;
    memberList->append(this);
+
+   raise();
 }
 
 KToolBar* KMainWindow::toolBar(const QString&)
