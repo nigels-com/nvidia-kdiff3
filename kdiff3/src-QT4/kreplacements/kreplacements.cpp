@@ -42,7 +42,6 @@
 #include <QFileDialog>
 
 #include <vector>
-#include <iostream>
 #include <algorithm>
 
 
@@ -58,6 +57,7 @@ static KAboutData* s_pAboutData;
 #ifdef _WIN32
 #include <process.h>
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 static void showHelp()
@@ -1143,7 +1143,6 @@ KApplication::KApplication()
             if ( 0==QMessageBox::information(0, i18n("KDiff3-Usage"), s, i18n("Ignore"),i18n("Exit") ) )
                continue;
 #else
-            std::cerr << s.toLatin1().constData() << std::endl;
             fprintf(stderr, "%s\n", s.toLatin1().constData());
 #endif
 
@@ -1216,7 +1215,7 @@ KLibFactory* KLibLoader::factory(QString const&)
 
 QObject* KLibFactory::create(QObject* pParent, const QString& name, const QString& classname )
 {
-   KParts::Factory* f = dynamic_cast<KParts::Factory*>(this);
+   KParts::Factory* f = qobject_cast<KParts::Factory*>(this);
    if (f!=0)
       return f->createPartObject( (QWidget*)pParent, name.toAscii(),
                                             pParent, name.toAscii(),

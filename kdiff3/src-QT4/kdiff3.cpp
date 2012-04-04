@@ -112,7 +112,7 @@ KDiff3App::KDiff3App(QWidget* pParent, const char* /*name*/, KDiff3Part* pKDiff3
 {
    setObjectName( "KDiff3App" );
    m_pKDiff3Part = pKDiff3Part;
-   m_pKDiff3Shell = dynamic_cast<KParts::MainWindow*>(pParent);
+   m_pKDiff3Shell = qobject_cast<KParts::MainWindow*>(pParent);
 
    setWindowTitle( "KDiff3" );
    setOpaqueResize(false); // faster resizing
