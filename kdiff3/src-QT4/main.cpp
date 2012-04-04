@@ -86,7 +86,7 @@ static bool isOptionUsed(const QString& s, int argc, char* argv[])
 {
    for(int j=0; j<argc; ++j )
    {
-      if( "-"+s == argv[j] || "--"+s==argv[j] )
+      if( QString("-"+s) == argv[j] || QString("--"+s)==argv[j] )
       {
          return true;
       }
