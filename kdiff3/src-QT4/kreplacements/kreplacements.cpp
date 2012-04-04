@@ -26,7 +26,11 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QPainter>
+
+#ifndef QT_NO_COLORDIALOG
 #include <QColorDialog>
+#endif
+
 #include <QFontDialog>
 #include <QLabel>
 #include <QTextBrowser>
@@ -830,9 +834,11 @@ void KColorButton::paintEvent( QPaintEvent* e )
 
 void KColorButton::slotClicked()
 {
+#ifndef QT_NO_COLORDIALOG
    // Under Windows ChooseColor() should be used. (Nicer if few colors exist.)
    QColor c = QColorDialog::getColor ( m_color, this );
    if ( c.isValid() ) m_color = c;
+#endif
    update();
 }
 
