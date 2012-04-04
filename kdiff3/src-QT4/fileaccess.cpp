@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <cstdlib>
-#include <iostream>
+
 #include <klocale.h>
 #include <ktemporaryfile.h>
 #include <kio/global.h>

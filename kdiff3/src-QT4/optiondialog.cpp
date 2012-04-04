@@ -52,8 +52,6 @@
 #include "diff.h"
 #include "smalldialogs.h"
 
-#include <iostream>
-
 #ifndef KREPLACEMENTS_H
 #include <kglobalsettings.h>
 #endif
