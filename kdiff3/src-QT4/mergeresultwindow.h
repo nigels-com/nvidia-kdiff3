@@ -234,7 +234,7 @@ private:
       void pop_back()                          { ds(-1); BASE::pop_back();    }
       iterator erase( iterator i )             { ds(-1); return BASE::erase(i);  }
       iterator insert( iterator i, const MergeEditLine& m ) { ds(+1); return BASE::insert(i,m); }
-      int size(){ if (!m_pTotalSize) m_size = BASE::size(); return m_size; }
+      int size(){ if (!m_pTotalSize) m_size = (int) BASE::size(); return m_size; }
       iterator begin(){return BASE::begin();}
       iterator end(){return BASE::end();}
       reverse_iterator rbegin(){return BASE::rbegin();}

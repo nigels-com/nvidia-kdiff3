@@ -2086,7 +2086,7 @@ bool fineDiff(
    int k1=0;
    int k2=0;
    bool bTextsTotalEqual = true;
-   int listSize = diff3LineList.size();
+   int listSize = (int) diff3LineList.size();
    int listIdx = 0;
    for( i= diff3LineList.begin(); i!= diff3LineList.end(); ++i)
    {
