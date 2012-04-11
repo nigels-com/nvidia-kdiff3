@@ -958,7 +958,7 @@ void KCmdLineArgs::addCmdLineOptions( const KCmdLineOptions& /*options*/ ) // st
 
 int KCmdLineArgs::count()
 {
-   return (int) s_vArg.size();
+   return s_vArg.size();
 }
 
 QString KCmdLineArgs::arg(int idx)
@@ -1190,7 +1190,7 @@ namespace KIO
    SimpleJob* file_delete( KUrl, int ){return 0;}
    FileCopyJob* file_move(  KUrl, KUrl, int, int ) {return 0;}
    FileCopyJob* file_copy(  KUrl, KUrl, int, int ) {return 0;}
-   CopyJob* link(  KUrl, KUrl, JobFlag ) {return 0;}
+   CopyJob* link(  KUrl, KUrl, bool ) {return 0;}
    ListJob* listRecursive( KUrl, bool, bool ){return 0;}
    ListJob* listDir( KUrl, bool, bool ){return 0;}
    StatJob* stat( KUrl, bool, int, int ){return 0;}

@@ -399,7 +399,7 @@ void KDiff3App::init( bool bAuto, TotalDiffStatus* pTotalDiffStatus, bool bLoadF
    calcDiff3LineVector( m_diff3LineList, m_diff3LineVector );
 
    // Calc needed lines for display
-   m_neededLines = (int) m_diff3LineList.size();
+   m_neededLines = m_diff3LineList.size();
 
    QList<int> oldHeights;
    if ( m_pDirectoryMergeSplitter->isVisible() )
@@ -1701,7 +1701,7 @@ void KDiff3App::recalcWordWrap(int nofVisibleColumns) // nofVisibleColumns is >=
    }
    else
    {
-      m_neededLines = (int) m_diff3LineVector.size();
+      m_neededLines = m_diff3LineVector.size();
       if ( m_pDiffTextWindow1 )
          m_pDiffTextWindow1->recalcWordWrap(false,0,0);
       if ( m_pDiffTextWindow2 )

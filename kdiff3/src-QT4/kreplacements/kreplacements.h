@@ -529,8 +529,7 @@ public:
 
 namespace KIO
 {
-   enum JobFlag { DefaultFlags = 0, HideProgressInfo = 1, Resume = 2, Overwrite = 4 };
-   enum LoadType { Reload, NoReload };
+   enum { Overwrite, DefaultFlags, Resume, HideProgressInfo, NoReload };
    enum UDSEntry {};
    typedef QList<UDSEntry> UDSEntryList;
    class Job : public KJob
@@ -544,7 +543,7 @@ namespace KIO
    FileCopyJob* file_move(  KUrl, KUrl, int, int );
    FileCopyJob* file_copy(  KUrl, KUrl, int, int );
    class CopyJob : public KJob {};
-   CopyJob* link( KUrl, KUrl, JobFlag );
+   CopyJob* link( KUrl, KUrl, bool );
    class ListJob : public KJob {};
    ListJob* listRecursive( KUrl, bool, bool );
    ListJob* listDir( KUrl, bool, bool );

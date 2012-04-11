@@ -3112,7 +3112,7 @@ void Overview::paintEvent( QPaintEvent* )
       }
       else
       {
-         m_nofLines = (int) m_pDiff3LineList->size();
+         m_nofLines = m_pDiff3LineList->size();
       }
    
       m_pixmap = QPixmap( size() );

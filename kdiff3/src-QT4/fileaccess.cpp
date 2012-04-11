@@ -1881,7 +1881,7 @@ void ProgressDialog::setInformation(const QString& info, double dCurrent, bool b
       return;
    ProgressLevelData& pld = m_progressStack.back();
    pld.m_dCurrent = dCurrent;
-   size_t level = m_progressStack.size();
+   int level = m_progressStack.size();
    if ( level==1 )
    {
       m_pInformation->setText( info );
@@ -1899,7 +1899,7 @@ void ProgressDialog::setInformation(const QString& info, bool bRedrawUpdate )
    if ( m_progressStack.empty() )
       return;
    //ProgressLevelData& pld = m_progressStack.back();
-   size_t level = m_progressStack.size();
+   int level = m_progressStack.size();
    if ( level==1 )
    {
       m_pInformation->setText( info );
@@ -2000,7 +2000,7 @@ void ProgressDialog::recalc( bool bUpdate )
       killTimer( m_progressDelayTimer );
    m_progressDelayTimer = startTimer( 3000 ); /* 3 s delay */
 
-   size_t level = m_progressStack.size();
+   int level = m_progressStack.size();
    if( ( bUpdate && level==1) || m_t1.elapsed()>200 )
    {
       if (m_progressStack.empty() )

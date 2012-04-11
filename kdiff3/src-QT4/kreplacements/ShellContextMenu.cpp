@@ -362,9 +362,9 @@ void CShellContextMenu::FreePIDLArray(LPITEMIDLIST *pidlArray)
 	if (!pidlArray)
 		return;
 
-	size_t iSize = _msize (pidlArray) / sizeof (LPITEMIDLIST);
+	int iSize = _msize (pidlArray) / sizeof (LPITEMIDLIST);
 
-	for (size_t i = 0; i < iSize; i++)
+	for (int i = 0; i < iSize; i++)
 		free (pidlArray[i]);
 	free (pidlArray);
 }
