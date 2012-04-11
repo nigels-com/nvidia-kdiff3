@@ -118,6 +118,17 @@ FileAccess::FileAccess(const FileAccess& other)
    *this = other;
 }
 
+void FileAccess::createData()
+{
+   if ( d() == 0 )
+   {
+      FileAccess* pParent = m_pParent; // backup because in union with m_pData
+      m_pData = new Data();
+      m_bUseData = true;
+      m_pData->m_pParent = pParent;
+   }
+}
+
 const FileAccess& FileAccess::operator=(const FileAccess& other)
 {
    m_size = other.m_size;
@@ -132,9 +143,7 @@ const FileAccess& FileAccess::operator=(const FileAccess& other)
 
    if ( other.m_bUseData )
    {
-      if ( ! m_bUseData )
-         m_pData = new Data;
-      m_bUseData = true;
+      createData();
       *m_pData = *other.m_pData;
    }
    else
@@ -183,10 +192,9 @@ void FileAccess::setFile( const QFileInfo& fi, FileAccess* pParent )
    m_filePath   = nicePath( fi.filePath() ); // remove "./" at start   
 
    m_bSymLink   = fi.isSymLink();
-   if ( ( m_bSymLink || (!m_bExists  && m_filePath.contains("@@") ) )&& !m_bUseData )
+   if ( m_bSymLink || (!m_bExists  && m_filePath.contains("@@") ) )
    {
-      m_pData = new Data;
-      m_bUseData = true;
+      createData();
    }
 
    if ( m_bUseData )
@@ -301,14 +309,17 @@ void FileAccess::setFile( const QString& name, bool bWantToWrite )
       {
          QString localName = name;
 
-         // git on Cygwin will put files in /tmp
-         // A workaround for the a native kdiff3 binary to find them...
-      
 #if defined(Q_WS_WIN)
-         if (localName.startsWith("/tmp/"))
+         if ( !bExistsLocal )
          {
+            // git on Cygwin will put files in /tmp
+            // A workaround for the a native kdiff3 binary to find them...
+         
             QString cygwinBin = getenv("CYGWIN_BIN");
-            localName = QString("%1\\..%2").arg(cygwinBin).arg(name);
+            if (localName.startsWith("/tmp/") && !cygwinBin.isEmpty() )
+            {
+               localName = QString("%1\\..%2").arg(cygwinBin).arg(name);
+            }
          }
 #endif
 
@@ -322,11 +333,7 @@ void FileAccess::setFile( const QString& name, bool bWantToWrite )
       }
       else
       {
-         if (d()==0)
-         {
-            m_pData = new Data;
-            m_bUseData = true;
-         }
+         createData();
          d()->m_url = url;
          d()->m_name   = d()->m_url.fileName();
          d()->m_bLocal = false;
@@ -896,6 +903,15 @@ QString FileAccess::getStatusText()
    return d()==0 ? QString() : d()->m_statusText;
 }
 
+void FileAccess::setStatusText( const QString& s )
+{
+   if (  ! s.isEmpty() || d() != 0 )
+   {
+      createData();
+      d()->m_statusText = s;
+   }
+}
+
 QString FileAccess::cleanPath( const QString& path ) // static
 {
    KUrl url(path);
@@ -913,11 +929,7 @@ bool FileAccess::createBackup( const QString& bakExtension )
 {
    if ( exists() )
    {
-      if (d()==0)
-      {
-         m_pData = new Data;
-         m_bUseData = true;
-      }
+      createData();
       setFile( absoluteFilePath() ); // make sure Data is initialized
       // First rename the existing file to the bak-file. If a bak-file file exists, delete that.
       QString bakName = absoluteFilePath() + bakExtension;
@@ -927,15 +939,15 @@ bool FileAccess::createBackup( const QString& bakExtension )
          bool bSuccess = bakFile.removeFile();
          if ( !bSuccess )
          {
-            d()->m_statusText = i18n("While trying to make a backup, deleting an older backup failed. \nFilename: ") + bakName;
+            setStatusText( i18n("While trying to make a backup, deleting an older backup failed. \nFilename: ") + bakName );
             return false;
          }
       }
       bool bSuccess = rename( bakName );
       if (!bSuccess)
       {
-         d()->m_statusText = i18n("While trying to make a backup, renaming failed. \nFilenames: ") +
-               absoluteFilePath() + " -> " + bakName;
+         setStatusText( i18n("While trying to make a backup, renaming failed. \nFilenames: ") +
+               absoluteFilePath() + " -> " + bakName );
          return false;
       }
    }
@@ -951,7 +963,7 @@ FileAccessJobHandler::FileAccessJobHandler( FileAccess* pFileAccess )
 bool FileAccessJobHandler::stat( int detail, bool bWantToWrite )
 {
    m_bSuccess = false;
-   m_pFileAccess->d()->m_statusText = QString();
+   m_pFileAccess->setStatusText( QString() );
    KIO::StatJob* pStatJob = KIO::stat( m_pFileAccess->url(), 
          bWantToWrite ? KIO::StatJob::DestinationSide : KIO::StatJob::SourceSide, 
          detail, KIO::HideProgressInfo );
@@ -995,7 +1007,7 @@ bool FileAccessJobHandler::get(void* pDestBuffer, long maxLength )
       m_pTransferBuffer = (char*)pDestBuffer;
       m_maxLength = maxLength;
       m_bSuccess = false;
-      m_pFileAccess->d()->m_statusText = QString();
+      m_pFileAccess->setStatusText( QString() );
 
       connect( pJob, SIGNAL(result(KJob*)), this, SLOT(slotSimpleJobResult(KJob*)));
       connect( pJob, SIGNAL(data(KJob*,const QByteArray &)), this, SLOT(slotGetData(KJob*, const QByteArray&)));
@@ -1032,7 +1044,7 @@ bool FileAccessJobHandler::put(const void* pSrcBuffer, long maxLength, bool bOve
       m_pTransferBuffer = (char*)pSrcBuffer;
       m_maxLength = maxLength;
       m_bSuccess = false;
-      m_pFileAccess->d()->m_statusText = QString();
+      m_pFileAccess->setStatusText( QString() );
 
       connect( pJob, SIGNAL(result(KJob*)), this, SLOT(slotPutJobResult(KJob*)));
       connect( pJob, SIGNAL(dataReq(KIO::Job*, QByteArray&)), this, SLOT(slotPutData(KIO::Job*, QByteArray&)));
@@ -1203,7 +1215,7 @@ bool FileAccessJobHandler::copyFile( const QString& dest )
 {
    ProgressProxy pp;
    KUrl destUrl( dest );
-   m_pFileAccess->d()->m_statusText = QString();
+   m_pFileAccess->setStatusText( QString() );
    if ( ! m_pFileAccess->isLocal() || ! destUrl.isLocalFile() ) // if either url is nonlocal
    {
       int permissions = (m_pFileAccess->isExecutable()?0111:0)+(m_pFileAccess->isWritable()?0222:0)+(m_pFileAccess->isReadable()?0444:0);
@@ -1226,13 +1238,13 @@ bool FileAccessJobHandler::copyFile( const QString& dest )
    bool bReadSuccess = srcFile.open( QIODevice::ReadOnly );
    if ( bReadSuccess == false )
    {
-      m_pFileAccess->d()->m_statusText = i18n("Error during file copy operation: Opening file for reading failed. Filename: %1",srcName);
+      m_pFileAccess->setStatusText( i18n("Error during file copy operation: Opening file for reading failed. Filename: %1",srcName) );
       return false;
    }
    bool bWriteSuccess = destFile.open( QIODevice::WriteOnly );
    if ( bWriteSuccess == false )
    {
-      m_pFileAccess->d()->m_statusText = i18n("Error during file copy operation: Opening file for writing failed. Filename: %1",destName);
+      m_pFileAccess->setStatusText( i18n("Error during file copy operation: Opening file for writing failed. Filename: %1",destName) );
       return false;
    }
 
@@ -1247,7 +1259,7 @@ bool FileAccessJobHandler::copyFile( const QString& dest )
       qint64 readSize = srcFile.read( &buffer[0], min2( srcSize, bufSize ) );
       if ( readSize==-1 || readSize==0 )
       {
-         m_pFileAccess->d()->m_statusText = i18n("Error during file copy operation: Reading failed. Filename: %1",srcName);
+         m_pFileAccess->setStatusText( i18n("Error during file copy operation: Reading failed. Filename: %1",srcName) );
          return false;
       }
       srcSize -= readSize;
@@ -1256,7 +1268,7 @@ bool FileAccessJobHandler::copyFile( const QString& dest )
          qint64 writeSize = destFile.write( &buffer[0], readSize );
          if ( writeSize==-1 || writeSize==0 )
          {
-            m_pFileAccess->d()->m_statusText = i18n("Error during file copy operation: Writing failed. Filename: %1",destName);
+            m_pFileAccess->setStatusText( i18n("Error during file copy operation: Writing failed. Filename: %1",destName) );
             return false;
          }
          readSize -= writeSize;
@@ -1761,8 +1773,7 @@ void FileAccessJobHandler::slotListDirProcessNewEntries( KIO::Job*, const KIO::U
    {
       const KIO::UDSEntry& e = *i;
       FileAccess fa;
-      fa.m_pData = new FileAccess::Data;
-      fa.m_bUseData = true;
+      fa.createData();
       fa.m_pData->m_pParent = m_pFileAccess;
       fa.setUdsEntry( e );
 
